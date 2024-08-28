@@ -27,6 +27,9 @@ export default function Contact() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <head>
+        <title>Talk to us</title>
+      </head>
       <h1 className="text-2xl font-bold mb-6 text-black">To talk with us:</h1>
       <div className="bg-gray-50 p-8 rounded-lg shadow-md w-full max-w-md">
         <form ref={form} onSubmit={sendEmail} className="space-y-4">
