@@ -30,8 +30,10 @@ export default function Contact() {
       <head>
         <title>Talk to us</title>
       </head>
-      <h1 className="text-2xl font-bold mb-6 text-black">To talk with us:</h1>
-      <div className="bg-gray-50 p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="max-w-md w-full  shadow-md bg-gray-50 shadow-md">
+      <h1 className="text-2xl font-bold text-center   mb-6 text-black">To talk to us:</h1>
+      </div>
+      <div className="bg-gray-50 p-8  shadow-md w-full max-w-md">
         <form ref={form} onSubmit={sendEmail} className="space-y-4">
           <div className="form-group">
             <label htmlFor="name" className="block text-black">Name:</label>
@@ -103,7 +105,7 @@ export default function Contact() {
           
           <input
             type="submit"
-            value="Enviar"
+            value="Send"
             className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-blue-600"
           />
         </form>
