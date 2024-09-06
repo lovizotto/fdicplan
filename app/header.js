@@ -6,15 +6,16 @@ export default function Header() {
   return (
     <header className="bg-zinc-600 p-4 flex justify-between items-center">
       <div className="flex items-center ml-4">
-        <Image
-          src="/images/image.png" 
-          alt="FDICPLAN Logo"
-          width={130} 
-          height={100}
-
-        />
+        <Link href="./">
+          <Image
+            src="/images/image.png" 
+            alt="FDICPLAN Logo"
+            width={130} 
+            height={100}
+            className="cursor-pointer" 
+          />
+        </Link>
       </div>
-
 
       <div className="flex space-x-6 mr-4">
         <Link href="#">
