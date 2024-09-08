@@ -1,0 +1,19 @@
+{
+    "extends": ["next/core-web-vitals", "plugin:prettier/recommended"],
+    "plugins": ["prettier", "json-format"],
+    "rules": {
+      "prettier/prettier": ["error", { "endOfLine": "auto" }]
+    },
+    
+    "overrides": [
+    {
+      "files": ["*.json"],
+      "parser": "eslint-plugin-json-format",
+      "rules": {
+        "json-format/sort-package-json": "error"
+      }
+    }
+
+    
+  ]
+  }

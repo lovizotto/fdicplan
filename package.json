@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    
+     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.json",
+  "format": "prettier --write '**/*.{js,jsx,ts,tsx,json}'"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -18,7 +20,24 @@
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "14.2.6",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-json-format": "^2.0.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.9",
     "postcss": "^8",
+    "prettier": "^3.3.3",
     "tailwindcss": "^3.4.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }
