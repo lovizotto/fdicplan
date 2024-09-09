@@ -27,7 +27,7 @@ export default function ProspectList() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center mb-6 text-black">Prospect List</h1>
+      <h1 className="text-3xl font-bold text-center mb-6 text-white">Prospect List</h1>
       <div className="mb-4">
         <input
           type="text"
@@ -60,7 +60,7 @@ export default function ProspectList() {
       <div className="overflow-x-auto">
         <table className="table-auto w-full">
           <thead>
-            <tr className="text-black">
+            <tr className="text-white">
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Email</th>
               <th className="px-4 py-2">Phone</th>
