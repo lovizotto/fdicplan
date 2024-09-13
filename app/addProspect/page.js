@@ -1,12 +1,12 @@
-"use client"; // Marque o arquivo como um Client Component
+"use client"; 
 
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Alterar para next/navigation
+import { useRouter } from "next/navigation"; 
 
 export default function AddProspect() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const router = useRouter(); // Utilize o useRouter importado de next/navigation
+  const router = useRouter(); 
 
   const handleSubmit = (e) => {
     e.preventDefault();
