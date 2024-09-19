@@ -6,6 +6,20 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // Variável de ambiente contendo a URL do banco de dados
+}
+
+model Client {
+  id          Int      @id @default(autoincrement()) // Identificador único (auto-incrementado)
+  name        String // Nome do cliente
+  email       String   @unique // Email único para cada cliente
+  phone       String // Telefone
+  contact     String // Contato
+  lastHistory String // Última história
+  status      String // Status
+  createdAt   DateTime @default(now()) // Data de criação
+  updatedAt   DateTime @updatedAt // Atualiza automaticamente ao modificar
+
+  @@map("clientes") // Nome da tabela no banco de dados
 }
