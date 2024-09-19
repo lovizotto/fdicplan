@@ -1,9 +1,20 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { SearchInput } from '../components/form/SearchInput';
 
+// Define a type for Lead
+interface Lead {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  contact: string;
+  lastHistory: string;
+  status: string;
+}
+
 export default function LeadList() {
-  const [leads] = useState([
+  const [leads] = useState<Lead[]>([
     {
       id: 1,
       name: 'Carlos Silva',
@@ -23,10 +34,11 @@ export default function LeadList() {
       status: 'In Progress',
     },
   ]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [contactFilter, setContactFilter] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [contactFilter, setContactFilter] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const leadsPerPage = 10;
 
   const filteredLeads = leads
@@ -42,7 +54,7 @@ export default function LeadList() {
   const indexOfFirstLead = indexOfLastLead - leadsPerPage;
   const currentLeads = filteredLeads.slice(indexOfFirstLead, indexOfLastLead);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="container mx-auto p-6">
@@ -127,7 +139,11 @@ export default function LeadList() {
             <button
               key={index + 1}
               onClick={() => paginate(index + 1)}
-              className={`mx-1 px-3 py-1 border rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
+              className={`mx-1 px-3 py-1 border rounded ${
+                currentPage === index + 1
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-black'
+              }`}
             >
               {index + 1}
             </button>

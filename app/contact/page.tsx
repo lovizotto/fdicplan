@@ -1,28 +1,30 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, FormEvent } from 'react';
 import InputMask from 'react-input-mask';
 import emailjs from '@emailjs/browser';
 
 export default function Contact() {
-  const form = useRef();
+  const form = useRef<HTMLFormElement>(null);
 
-  const sendEmail = (e) => {
+  const sendEmail = (e: FormEvent) => {
     e.preventDefault();
 
-    emailjs
-      .sendForm('socorrojesus', 'template_yswdxst', form.current, {
-        publicKey: 'UJBIN2eSwzSLdrb8S',
-      })
-      .then(
-        () => {
-          alert('Formulário enviado com sucesso!');
-          form.current.reset();
-        },
-        (error) => {
-          console.error('Falha ao enviar o formulário:', error.text);
-          alert('Falha ao enviar o formulário. Tente novamente mais tarde.');
-        },
-      );
+    if (form.current) {
+      emailjs
+        .sendForm('socorrojesus', 'template_yswdxst', form.current, {
+          publicKey: 'UJBIN2eSwzSLdrb8S',
+        })
+        .then(
+          () => {
+            alert('Formulário enviado com sucesso!');
+            form.current?.reset();
+          },
+          (error) => {
+            console.error('Falha ao enviar o formulário:', error.text);
+            alert('Falha ao enviar o formulário. Tente novamente mais tarde.');
+          },
+        );
+    }
   };
 
   return (
@@ -30,12 +32,12 @@ export default function Contact() {
       <head>
         <title>Talk to us</title>
       </head>
-      <div className="max-w-md w-full  shadow-md bg-gray-50 shadow-md">
-        <h1 className="text-2xl font-bold text-center   mb-6 text-black">
+      <div className="max-w-md w-full shadow-md bg-gray-50 shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-6 text-black">
           To talk to us:
         </h1>
       </div>
-      <div className="bg-gray-50 p-8  shadow-md w-full max-w-md">
+      <div className="bg-gray-50 p-8 shadow-md w-full max-w-md">
         <form ref={form} onSubmit={sendEmail} className="space-y-4">
           <div className="form-group">
             <label htmlFor="name" className="block text-black">

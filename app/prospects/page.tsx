@@ -1,12 +1,32 @@
 'use client';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { SearchInput } from '../components/form/SearchInput';
 
-export default function ProspectsPage({ params, searchParams }) {
-  const name = searchParams.name;
-  const status = searchParams.status;
-  const contact = searchParams.contact;
-  const [prospects] = useState([
+interface Prospect {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  contact: string;
+  lastHistory: string;
+  status: string;
+}
+
+interface ProspectsPageProps {
+  params: Record<string, string>;
+  searchParams: {
+    name?: string;
+    status?: string;
+    contact?: string;
+  };
+}
+
+export default function ProspectsPage({ params, searchParams }: ProspectsPageProps) {
+  const name = searchParams.name || '';
+  const status = searchParams.status || '';
+  const contact = searchParams.contact || '';
+  
+  const [prospects] = useState<Prospect[]>([
     {
       id: 1,
       name: 'Gustavo Tesin',
@@ -27,33 +47,33 @@ export default function ProspectsPage({ params, searchParams }) {
     },
   ]);
 
-  const [searchTerm, setSearchTerm] = useState(name || '');
-  const [statusFilter, setStatusFilter] = useState(status || '');
-  const [contactFilter, setContactFilter] = useState(contact || '');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState<string>(name);
+  const [statusFilter, setStatusFilter] = useState<string>(status);
+  const [contactFilter, setContactFilter] = useState<string>(contact);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const prospectsPerPage = 10;
 
   const filteredProspects = prospects
     .filter(
       (prospect) =>
-        prospect.name.toLowerCase().includes(searchTerm?.toLowerCase()) ||
-        prospect.email.toLowerCase().includes(searchTerm?.toLowerCase()),
+        prospect.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        prospect.email.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .filter((prospect) =>
-      statusFilter ? prospect.status === statusFilter : true,
+      statusFilter ? prospect.status === statusFilter : true
     )
     .filter((prospect) =>
-      contactFilter ? prospect.contact === contactFilter : true,
+      contactFilter ? prospect.contact === contactFilter : true
     );
 
   const indexOfLastProspect = currentPage * prospectsPerPage;
   const indexOfFirstProspect = indexOfLastProspect - prospectsPerPage;
   const currentProspects = filteredProspects.slice(
     indexOfFirstProspect,
-    indexOfLastProspect,
+    indexOfLastProspect
   );
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="container mx-auto p-6">
@@ -110,28 +130,18 @@ export default function ProspectsPage({ params, searchParams }) {
                 <td className="border px-4 py-2 text-black whitespace-nowrap">
                   {prospect.name}
                 </td>
-                <td className="border px-4 py-2 text-black">
-                  {prospect.email}
-                </td>
-                <td className="border px-4 py-2 text-black">
-                  {prospect.phone}
-                </td>
-                <td className="border px-4 py-2 text-black">
-                  {prospect.contact}
-                </td>
+                <td className="border px-4 py-2 text-black">{prospect.email}</td>
+                <td className="border px-4 py-2 text-black">{prospect.phone}</td>
+                <td className="border px-4 py-2 text-black">{prospect.contact}</td>
                 <td className="border px-4 py-2 text-black">
                   {prospect.lastHistory}
                 </td>
-                <td className="border px-4 py-2 text-black">
-                  {prospect.status}
-                </td>
+                <td className="border px-4 py-2 text-black">{prospect.status}</td>
                 <td className="border px-4 py-2 text-black">
                   <button className="text-blue-500 hover:text-blue-700 mr-2">
                     Edit
                   </button>
-                  <button className="text-red-500 hover:text-red-700">
-                    Delete
-                  </button>
+                  <button className="text-red-500 hover:text-red-700">Delete</button>
                 </td>
               </tr>
             ))}
@@ -149,11 +159,15 @@ export default function ProspectsPage({ params, searchParams }) {
             <button
               key={index + 1}
               onClick={() => paginate(index + 1)}
-              className={`mx-1 px-3 py-1 border rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
+              className={`mx-1 px-3 py-1 border rounded ${
+                currentPage === index + 1
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 text-black'
+              }`}
             >
               {index + 1}
             </button>
-          ),
+          )
         )}
       </div>
     </div>
