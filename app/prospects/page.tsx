@@ -1,7 +1,7 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchInput } from '../components/form/SearchInput';
-import AddProspectForm from './add';
+import AddProspectForm from './addProspectForm';
 
 interface Prospect {
   id: number;
@@ -27,33 +27,24 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
   const status = searchParams.status || '';
   const contact = searchParams.contact || '';
 
-  const [prospects, setProspects] = useState<Prospect[]>([
-    {
-      id: 1,
-      name: 'Gustavo Tesin',
-      email: 'glovizotto@example.com',
-      phone: '(18)98164-0961',
-      contact: 'Phone',
-      lastHistory: 'REUNIAO DE TARDE',
-      status: 'Active',
-    },
-    {
-      id: 2,
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      phone: '987-654-3210',
-      contact: 'Email',
-      lastHistory: 'Sent Proposal',
-      status: 'Pending',
-    },
-  ]);
-
+  const [prospects, setProspects] = useState<Prospect[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>(name);
   const [statusFilter, setStatusFilter] = useState<string>(status);
   const [contactFilter, setContactFilter] = useState<string>(contact);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const prospectsPerPage = 10;
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
+  const [prospectToEdit, setProspectToEdit] = useState<Prospect | null>(null);
+
+  useEffect(() => {
+    const fetchProspects = async () => {
+      const response = await fetch('http://localhost:3000/api/route'); // Substitua pela URL correta da sua API
+      const data = await response.json();
+      setProspects(data);
+    };
+
+    fetchProspects();
+  }, []);
 
   const filteredProspects = prospects
     .filter(
@@ -71,12 +62,29 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const handleAddProspect = (newProspect: Prospect) => {
-    setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]);
+    if (prospectToEdit) {
+      // Atualiza o prospect existente
+      setProspects(prospects.map(prospect => (prospect.id === prospectToEdit.id ? { ...prospectToEdit, ...newProspect } : prospect)));
+    } else {
+      // Adiciona um novo prospect
+      setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]);
+    }
     setShowAddForm(false);
+    setProspectToEdit(null);
+  };
+
+  const handleEdit = (prospect: Prospect) => {
+    setProspectToEdit(prospect);
+    setShowAddForm(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setProspects(prospects.filter(prospect => prospect.id !== id));
   };
 
   const handleCancel = () => {
     setShowAddForm(false);
+    setProspectToEdit(null);
   };
 
   return (
@@ -91,7 +99,14 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
         />
       </div>
 
-      {showAddForm && <AddProspectForm onAdd={handleAddProspect} onCancel={handleCancel} />}
+      {showAddForm && (
+        <AddProspectForm
+          onAdd={handleAddProspect}
+          onCancel={handleCancel}
+          prospectToEdit={prospectToEdit}
+          onEditComplete={handleCancel}
+        />
+      )}
 
       <div className="flex space-x-4 mb-4">
         <select
@@ -146,8 +161,18 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
                 <td className="border px-4 py-2 text-black">{prospect.lastHistory}</td>
                 <td className="border px-4 py-2 text-black">{prospect.status}</td>
                 <td className="border px-4 py-2 text-black">
-                  <button className="text-blue-500 hover:text-blue-700 mr-2">Edit</button>
-                  <button className="text-red-500 hover:text-red-700">Delete</button>
+                  <button
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                    onClick={() => handleEdit(prospect)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => handleDelete(prospect.id)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
@@ -166,7 +191,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
             className={`mx-1 px-3 py-1 border rounded ${
               currentPage === index + 1
                 ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-black'
+                : 'bg-gray-200 text-black'  
             }`}
           >
             {index + 1}
