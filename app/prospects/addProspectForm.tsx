@@ -13,8 +13,8 @@ interface Prospect {
 const AddProspectForm: React.FC<{
   onAdd: (prospect: Prospect) => void;
   onCancel: () => void;
-  prospectToEdit?: Prospect; // Para edição
-  onEditComplete: () => void; // Callback após edição
+  prospectToEdit?: Prospect; 
+  onEditComplete: () => void; 
 }> = ({ onAdd, onCancel, prospectToEdit, onEditComplete }) => {
   const [formData, setFormData] = useState<Prospect>({
     name: '',
@@ -53,9 +53,9 @@ const AddProspectForm: React.FC<{
       return;
     }
 
-    setErrorMessage(null); // Reset error message
+    setErrorMessage(null); 
 
-    const url = 'http://localhost:3000/api/route'; // Verifique a URL
+    const url = 'http://localhost:3000/api/route'; 
     const method = prospectToEdit ? 'PUT' : 'POST';
 
     const response = await fetch(url, {
@@ -107,7 +107,7 @@ const AddProspectForm: React.FC<{
         <h2 className="text-2xl font-bold mb-4 text-black">{prospectToEdit ? 'Edit Prospect' : 'Add New Prospect'}</h2>
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <div className="space-y-4">
-          {/* Campos do formulário */}
+          
           <input
             type="text"
             name="name"

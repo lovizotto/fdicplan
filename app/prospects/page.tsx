@@ -38,7 +38,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
 
   useEffect(() => {
     const fetchProspects = async () => {
-      const response = await fetch('http://localhost:3000/api/route'); // Substitua pela URL correta da sua API
+      const response = await fetch('http://localhost:3000/api/route');
       const data = await response.json();
       setProspects(data);
     };
@@ -63,10 +63,10 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
 
   const handleAddProspect = (newProspect: Prospect) => {
     if (prospectToEdit) {
-      // Atualiza o prospect existente
+      
       setProspects(prospects.map(prospect => (prospect.id === prospectToEdit.id ? { ...prospectToEdit, ...newProspect } : prospect)));
     } else {
-      // Adiciona um novo prospect
+      
       setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]);
     }
     setShowAddForm(false);
