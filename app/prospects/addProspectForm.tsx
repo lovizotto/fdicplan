@@ -53,7 +53,7 @@ const AddProspectForm: React.FC<{
       return;
     }
 
-    setErrorMessage(null); // Limpa a mensagem de erro
+    setErrorMessage(null); 
 
     const url = 'http://localhost:3000/api/routes/prospects'; 
     const method = prospectToEdit ? 'PUT' : 'POST';
@@ -68,10 +68,10 @@ const AddProspectForm: React.FC<{
 
     if (response.ok) {
       alert(`Prospect ${prospectToEdit ? 'updated' : 'added'} successfully!`);
-      onAdd({ ...formData, id: prospectToEdit?.id }); // Certifique-se de passar o ID correto
-      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '' }); // Limpa o formulário após enviar
+      onAdd({ ...formData, id: prospectToEdit?.id }); 
+      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '' }); 
       if (prospectToEdit) {
-        onEditComplete(); // Chama o callback para completar a edição
+        onEditComplete(); 
       }
     } else {
       setErrorMessage('Failed to add/update prospect. Please try again later.');
@@ -91,8 +91,8 @@ const AddProspectForm: React.FC<{
 
     if (response.ok) {
       alert('Prospect deleted successfully!');
-      onEditComplete(); // Chama o callback após deletar
-      onCancel(); // Cancela o formulário
+      onEditComplete(); 
+      onCancel(); 
     } else {
       setErrorMessage('Failed to delete prospect. Please try again later.');
     }

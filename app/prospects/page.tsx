@@ -4,7 +4,7 @@ import { SearchInput } from '../components/form/SearchInput';
 import AddProspectForm from './addProspectForm';
 
 interface Prospect {
-  id: number; // Certifique-se de que isso seja sempre um número
+  id: number; 
   name: string;
   email: string;
   phone: string;
@@ -34,7 +34,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
   const [currentPage, setCurrentPage] = useState<number>(1);
   const prospectsPerPage = 10;
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
-  const [prospectToEdit, setProspectToEdit] = useState<Prospect | undefined>(undefined); // Atualizado para undefined
+  const [prospectToEdit, setProspectToEdit] = useState<Prospect | undefined>(undefined); 
 
   useEffect(() => {
     const fetchProspects = async () => {
@@ -68,7 +68,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
       setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]);
     }
     setShowAddForm(false);
-    setProspectToEdit(undefined); // Atualizado para undefined
+    setProspectToEdit(undefined); 
   };
 
   const handleEdit = (prospect: Prospect) => {
@@ -82,7 +82,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
 
   const handleCancel = () => {
     setShowAddForm(false);
-    setProspectToEdit(undefined); // Atualizado para undefined
+    setProspectToEdit(undefined); 
   };
 
   return (

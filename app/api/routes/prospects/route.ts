@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const client = await prisma.client.create({ data });
     return NextResponse.json(client);
   } catch (error) {
-    console.error(error); // Para ajudar na depuração
+    console.error(error);
     return NextResponse.error();
   }
 }
@@ -19,7 +19,7 @@ export async function GET() {
     const clients = await prisma.client.findMany();
     return NextResponse.json(clients);
   } catch (error) {
-    console.error(error); // Para ajudar na depuração
+    console.error(error);
     return NextResponse.error();
   }
 }
@@ -33,7 +33,7 @@ export async function PUT(req: Request) {
     });
     return NextResponse.json(client);
   } catch (error) {
-    console.error(error); // Para ajudar na depuração
+    console.error(error);
     return NextResponse.error();
   }
 }
@@ -44,7 +44,7 @@ export async function DELETE(req: Request) {
     await prisma.client.delete({ where: { id } });
     return NextResponse.json({ message: 'Cliente deletado com sucesso.' });
   } catch (error) {
-    console.error(error); // Para ajudar na depuração
+    console.error(error);
     return NextResponse.error();
   }
 }
