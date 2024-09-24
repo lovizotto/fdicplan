@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es6",
     "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": "./app", // Aponte para o diretório correto onde estão seus arquivos de origem
+    "outDir": "./dist", // Diretório de saída para os arquivos compilados
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "./app/*"
+      ] // Se você estiver usando aliases de caminho
+    },
     "lib": [
       "dom",
       "dom.iterable",
@@ -26,10 +33,13 @@
     ]
   },
   "include": [
-    "src/**/*",
+    "app/**/*", // Inclui apenas os arquivos dentro do diretório app
+    "next-env.d.ts" // Necessário para o Next.js
+    ,
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    ".next", // Excluir a pasta .next
+    "node_modules" // Excluir node_modules
   ]
 }
