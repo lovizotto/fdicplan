@@ -1,8 +1,8 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchInput } from '../components/form/SearchInput';
+import AddLeadForm from './addLeadForm';
 
-// Define a type for Lead
 interface Lead {
   id: number;
   name: string;
@@ -13,39 +13,44 @@ interface Lead {
   status: string;
 }
 
-export default function LeadList() {
-  const [leads] = useState<Lead[]>([
-    {
-      id: 1,
-      name: 'Carlos Silva',
-      email: 'carlos.silva@example.com',
-      phone: '(11)91234-5678',
-      contact: 'Phone',
-      lastHistory: 'Contacted via phone',
-      status: 'New',
-    },
-    {
-      id: 2,
-      name: 'Maria Souza',
-      email: 'maria.souza@example.com',
-      phone: '(21)98765-4321',
-      contact: 'Email',
-      lastHistory: 'Sent welcome email',
-      status: 'In Progress',
-    },
-  ]);
+interface LeadsPageProps {
+  params: Record<string, string>;
+  searchParams: {
+    name?: string;
+    status?: string;
+    contact?: string;
+  };
+}
 
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [contactFilter, setContactFilter] = useState<string>('');
+export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
+  const name = searchParams.name || '';
+  const status = searchParams.status || '';
+  const contact = searchParams.contact || '';
+
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>(name);
+  const [statusFilter, setStatusFilter] = useState<string>(status);
+  const [contactFilter, setContactFilter] = useState<string>(contact);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const leadsPerPage = 10;
+  const [showAddForm, setShowAddForm] = useState<boolean>(false);
+  const [leadToEdit, setLeadToEdit] = useState<Lead | null>(null);
+
+  useEffect(() => {
+    const fetchLeads = async () => {
+      const response = await fetch('http://localhost:3000/api/routes/leads');
+      const data = await response.json();
+      setLeads(data);
+    };
+
+    fetchLeads();
+  }, []);
 
   const filteredLeads = leads
     .filter(
       (lead) =>
         lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase()),
+        lead.email.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .filter((lead) => (statusFilter ? lead.status === statusFilter : true))
     .filter((lead) => (contactFilter ? lead.contact === contactFilter : true));
@@ -56,18 +61,55 @@ export default function LeadList() {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
+  // Adicionar ou editar leads
+  const handleAddLead = (newLead: Lead) => {
+    if (leadToEdit) {
+      setLeads(
+        leads.map((lead) =>
+          lead.id === leadToEdit.id ? { ...leadToEdit, ...newLead } : lead
+        )
+      );
+    } else {
+      setLeads([...leads, { ...newLead, id: leads.length + 1 }]);
+    }
+    setShowAddForm(false);
+    setLeadToEdit(null);
+  };
+
+  const handleEdit = (lead: Lead) => {
+    setLeadToEdit(lead);
+    setShowAddForm(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setLeads(leads.filter((lead) => lead.id !== id));
+  };
+
+  const handleCancel = () => {
+    setShowAddForm(false);
+    setLeadToEdit(null);
+  };
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center mb-6 text-white">
-        Lead List
-      </h1>
+      <h1 className="text-3xl font-bold text-center mb-6 text-white">Lead List</h1>
 
-      <div className="mb-4">
+      <div className="mb-4 flex items-center">
         <SearchInput
+          defaultValue={name}
           searchTerm={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+
+      {showAddForm && (
+        <AddLeadForm
+          onAdd={handleAddLead}
+          onCancel={handleCancel}
+          leadToEdit={leadToEdit}
+          onEditComplete={handleCancel}
+        />
+      )}
 
       <div className="flex space-x-4 mb-4">
         <select
@@ -89,6 +131,14 @@ export default function LeadList() {
           <option value="Phone">Phone</option>
           <option value="Email">Email</option>
         </select>
+        <div className="flex-grow" />
+
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-600"
+        >
+          Add Lead
+        </button>
       </div>
 
       <div className="overflow-x-auto">
@@ -107,19 +157,23 @@ export default function LeadList() {
           <tbody>
             {currentLeads.map((lead) => (
               <tr key={lead.id} className="bg-gray-100">
-                <td className="border px-4 py-2 text-black">{lead.name}</td>
+                <td className="border px-4 py-2 text-black whitespace-nowrap">{lead.name}</td>
                 <td className="border px-4 py-2 text-black">{lead.email}</td>
                 <td className="border px-4 py-2 text-black">{lead.phone}</td>
                 <td className="border px-4 py-2 text-black">{lead.contact}</td>
-                <td className="border px-4 py-2 text-black">
-                  {lead.lastHistory}
-                </td>
+                <td className="border px-4 py-2 text-black">{lead.lastHistory}</td>
                 <td className="border px-4 py-2 text-black">{lead.status}</td>
                 <td className="border px-4 py-2 text-black">
-                  <button className="text-blue-500 hover:text-blue-700 mr-2">
+                  <button
+                    className="text-blue-500 hover:text-blue-700 mr-2"
+                    onClick={() => handleEdit(lead)}
+                  >
                     Edit
                   </button>
-                  <button className="text-red-500 hover:text-red-700">
+                  <button
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => handleDelete(lead.id)}
+                  >
                     Delete
                   </button>
                 </td>
@@ -133,22 +187,19 @@ export default function LeadList() {
       </div>
 
       <div className="flex justify-center mt-4">
-        {Array.from(
-          { length: Math.ceil(filteredLeads.length / leadsPerPage) },
-          (_, index) => (
-            <button
-              key={index + 1}
-              onClick={() => paginate(index + 1)}
-              className={`mx-1 px-3 py-1 border rounded ${
-                currentPage === index + 1
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-black'
-              }`}
-            >
-              {index + 1}
-            </button>
-          ),
-        )}
+        {Array.from({ length: Math.ceil(filteredLeads.length / leadsPerPage) }, (_, index) => (
+          <button
+            key={index + 1}
+            onClick={() => paginate(index + 1)}
+            className={`mx-1 px-3 py-1 border rounded ${
+              currentPage === index + 1
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-200 text-black'  
+            }`}
+          >
+            {index + 1}
+          </button>
+        ))}   
       </div>
     </div>
   );
