@@ -4,7 +4,7 @@ import { SearchInput } from '../components/form/SearchInput';
 import AddLeadForm from './addLeadForm';
 
 interface Lead {
-  id: number;
+  id?: number;  // Alterado para opcional
   name: string;
   email: string;
   phone: string;
@@ -34,7 +34,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const leadsPerPage = 10;
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
-  const [leadToEdit, setLeadToEdit] = useState<Lead | null>(null);
+  const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined); // Alterado para undefined
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -66,14 +66,14 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
     if (leadToEdit) {
       setLeads(
         leads.map((lead) =>
-          lead.id === leadToEdit.id ? { ...leadToEdit, ...newLead } : lead
+          lead.id === leadToEdit?.id ? { ...leadToEdit, ...newLead } : lead // Use a verificação do opcional
         )
       );
     } else {
       setLeads([...leads, { ...newLead, id: leads.length + 1 }]);
     }
     setShowAddForm(false);
-    setLeadToEdit(null);
+    setLeadToEdit(undefined); // Alterado para undefined
   };
 
   const handleEdit = (lead: Lead) => {
@@ -87,7 +87,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
 
   const handleCancel = () => {
     setShowAddForm(false);
-    setLeadToEdit(null);
+    setLeadToEdit(undefined); // Alterado para undefined
   };
 
   return (
@@ -106,7 +106,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
         <AddLeadForm
           onAdd={handleAddLead}
           onCancel={handleCancel}
-          leadToEdit={leadToEdit}
+          leadToEdit={leadToEdit} // Agora leadToEdit é Lead | undefined
           onEditComplete={handleCancel}
         />
       )}
@@ -172,7 +172,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
                   </button>
                   <button
                     className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDelete(lead.id)}
+                    onClick={() => handleDelete(lead.id!)} // Usando '!' para indicar que id é definido
                   >
                     Delete
                   </button>
@@ -194,7 +194,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
             className={`mx-1 px-3 py-1 border rounded ${
               currentPage === index + 1
                 ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-black'  
+                : 'bg-gray-200 text-black'
             }`}
           >
             {index + 1}

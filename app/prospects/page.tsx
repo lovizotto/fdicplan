@@ -4,7 +4,7 @@ import { SearchInput } from '../components/form/SearchInput';
 import AddProspectForm from './addProspectForm';
 
 interface Prospect {
-  id: number; 
+  id?: number; // Torne o id opcional
   name: string;
   email: string;
   phone: string;
@@ -63,9 +63,9 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
 
   const handleAddProspect = (newProspect: Prospect) => {
     if (prospectToEdit) {
-      setProspects(prospects.map(prospect => (prospect.id === prospectToEdit.id ? { ...prospectToEdit, ...newProspect } : prospect)));
+      setProspects(prospects.map(prospect => (prospect.id === prospectToEdit?.id ? { ...prospectToEdit, ...newProspect } : prospect)));
     } else {
-      setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]);
+      setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]); // O id é opcional
     }
     setShowAddForm(false);
     setProspectToEdit(undefined); 
@@ -167,7 +167,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
                   </button>
                   <button
                     className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDelete(prospect.id)}
+                    onClick={() => handleDelete(prospect.id!)}
                   >
                     Delete
                   </button>

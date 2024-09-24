@@ -30,7 +30,7 @@ const LeadForm: React.FC<{
 
   useEffect(() => {
     if (leadToEdit) {
-      setFormData({ ...leadToEdit, type: 'lead' }); // Mantém o tipo como 'lead' durante a edição
+      setFormData({ ...leadToEdit, type: 'lead' }); 
     }
   }, [leadToEdit]);
 

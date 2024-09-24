@@ -1,9 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(req) {
+export async function GET(req: Request) {
   try {
     const leads = await prisma.lead.findMany();
     return new Response(JSON.stringify(leads), { status: 200 });
@@ -13,7 +12,7 @@ export async function GET(req) {
   }
 }
 
-export async function POST(req) {
+export async function POST(req: Request) {
   const { name, email, phone, contact, lastHistory, status } = await req.json();
   try {
     const newLead = await prisma.lead.create({
@@ -33,7 +32,7 @@ export async function POST(req) {
   }
 }
 
-export async function PUT(req) {
+export async function PUT(req: Request) {
   const { id, name, email, phone, contact, lastHistory, status } =
     await req.json();
 
@@ -53,7 +52,7 @@ export async function PUT(req) {
   }
 }
 
-export async function DELETE(req) {
+export async function DELETE(req: Request) {
   const { id } = await req.json();
 
   if (!id) {

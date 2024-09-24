@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 interface Prospect {
-  id?: number;
+  id?: number; // id opcional
   name: string;
   email: string;
   phone: string;
@@ -13,8 +13,8 @@ interface Prospect {
 const AddProspectForm: React.FC<{
   onAdd: (prospect: Prospect) => void;
   onCancel: () => void;
-  prospectToEdit?: Prospect; 
-  onEditComplete: () => void; 
+  prospectToEdit?: Prospect;
+  onEditComplete: () => void;
 }> = ({ onAdd, onCancel, prospectToEdit, onEditComplete }) => {
   const [formData, setFormData] = useState<Prospect>({
     name: '',
@@ -24,11 +24,12 @@ const AddProspectForm: React.FC<{
     lastHistory: '',
     status: '',
   });
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (prospectToEdit) {
-      setFormData(prospectToEdit);
+      setFormData(prospectToEdit); // Preenche os dados do prospect para edição
     }
   }, [prospectToEdit]);
 
@@ -49,13 +50,13 @@ const AddProspectForm: React.FC<{
     }
 
     if (!validatePhone(formData.phone)) {
-      setErrorMessage('Please enter a valid phone number (00)00000-0000.');
+      setErrorMessage('Please enter a valid phone number (00)00000-0000).');
       return;
     }
 
-    setErrorMessage(null); 
+    setErrorMessage(null);
 
-    const url = 'http://localhost:3000/api/routes/prospects'; 
+    const url = 'http://localhost:3000/api/routes/prospects';
     const method = prospectToEdit ? 'PUT' : 'POST';
 
     const response = await fetch(url, {
@@ -63,15 +64,16 @@ const AddProspectForm: React.FC<{
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ...formData, id: prospectToEdit?.id }),
+      body: JSON.stringify({ ...formData, id: prospectToEdit?.id }), // Adiciona o id se estiver editando
     });
 
     if (response.ok) {
+      const newProspect = await response.json();
       alert(`Prospect ${prospectToEdit ? 'updated' : 'added'} successfully!`);
-      onAdd({ ...formData, id: prospectToEdit?.id }); 
-      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '' }); 
+      onAdd(newProspect);
+      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '' });
       if (prospectToEdit) {
-        onEditComplete(); 
+        onEditComplete();
       }
     } else {
       setErrorMessage('Failed to add/update prospect. Please try again later.');
@@ -81,7 +83,7 @@ const AddProspectForm: React.FC<{
   const handleDelete = async () => {
     if (!prospectToEdit) return;
 
-    const response = await fetch('/api/routes/prospects', {
+    const response = await fetch('http://localhost:3000/api/routes/prospects', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -91,8 +93,8 @@ const AddProspectForm: React.FC<{
 
     if (response.ok) {
       alert('Prospect deleted successfully!');
-      onEditComplete(); 
-      onCancel(); 
+      onEditComplete();
+      onCancel();
     } else {
       setErrorMessage('Failed to delete prospect. Please try again later.');
     }
@@ -100,11 +102,10 @@ const AddProspectForm: React.FC<{
 
   return (
     <div className="fixed inset-0 bg-opacity-75 bg-zinc-600 flex justify-center items-center z-50">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-md shadow-lg w-3/4 max-w-4xl"
-      >
-        <h2 className="text-2xl font-bold mb-4 text-black">{prospectToEdit ? 'Edit Prospect' : 'Add New Prospect'}</h2>
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded-md shadow-lg w-3/4 max-w-4xl">
+        <h2 className="text-2xl font-bold mb-4 text-black">
+          {prospectToEdit ? 'Edit Prospect' : 'Add New Prospect'}
+        </h2>
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <div className="space-y-4">
           <input
