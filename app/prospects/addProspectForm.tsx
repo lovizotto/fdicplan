@@ -49,13 +49,13 @@ const AddProspectForm: React.FC<{
     }
 
     if (!validatePhone(formData.phone)) {
-      setErrorMessage('Please enter a valid phone number (00)00000-0000).');
+      setErrorMessage('Please enter a valid phone number (00)00000-0000.');
       return;
     }
 
-    setErrorMessage(null); 
+    setErrorMessage(null); // Limpa a mensagem de erro
 
-    const url = 'http://localhost:3000/api/route'; 
+    const url = 'http://localhost:3000/api/routes/prospects'; 
     const method = prospectToEdit ? 'PUT' : 'POST';
 
     const response = await fetch(url, {
@@ -68,10 +68,10 @@ const AddProspectForm: React.FC<{
 
     if (response.ok) {
       alert(`Prospect ${prospectToEdit ? 'updated' : 'added'} successfully!`);
-      onAdd(formData);
-      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '' });
+      onAdd({ ...formData, id: prospectToEdit?.id }); // Certifique-se de passar o ID correto
+      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '' }); // Limpa o formulário após enviar
       if (prospectToEdit) {
-        onEditComplete();
+        onEditComplete(); // Chama o callback para completar a edição
       }
     } else {
       setErrorMessage('Failed to add/update prospect. Please try again later.');
@@ -81,7 +81,7 @@ const AddProspectForm: React.FC<{
   const handleDelete = async () => {
     if (!prospectToEdit) return;
 
-    const response = await fetch('/api/route', {
+    const response = await fetch('/api/routes/prospects', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -91,8 +91,8 @@ const AddProspectForm: React.FC<{
 
     if (response.ok) {
       alert('Prospect deleted successfully!');
-      onEditComplete();
-      onCancel();
+      onEditComplete(); // Chama o callback após deletar
+      onCancel(); // Cancela o formulário
     } else {
       setErrorMessage('Failed to delete prospect. Please try again later.');
     }
@@ -107,7 +107,6 @@ const AddProspectForm: React.FC<{
         <h2 className="text-2xl font-bold mb-4 text-black">{prospectToEdit ? 'Edit Prospect' : 'Add New Prospect'}</h2>
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <div className="space-y-4">
-          
           <input
             type="text"
             name="name"

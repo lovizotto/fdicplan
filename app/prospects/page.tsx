@@ -4,7 +4,7 @@ import { SearchInput } from '../components/form/SearchInput';
 import AddProspectForm from './addProspectForm';
 
 interface Prospect {
-  id: number;
+  id: number; // Certifique-se de que isso seja sempre um número
   name: string;
   email: string;
   phone: string;
@@ -34,11 +34,11 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
   const [currentPage, setCurrentPage] = useState<number>(1);
   const prospectsPerPage = 10;
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
-  const [prospectToEdit, setProspectToEdit] = useState<Prospect | null>(null);
+  const [prospectToEdit, setProspectToEdit] = useState<Prospect | undefined>(undefined); // Atualizado para undefined
 
   useEffect(() => {
     const fetchProspects = async () => {
-      const response = await fetch('http://localhost:3000/api/route');
+      const response = await fetch('http://localhost:3000/api/routes/prospects');
       const data = await response.json();
       setProspects(data);
     };
@@ -63,14 +63,12 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
 
   const handleAddProspect = (newProspect: Prospect) => {
     if (prospectToEdit) {
-      
       setProspects(prospects.map(prospect => (prospect.id === prospectToEdit.id ? { ...prospectToEdit, ...newProspect } : prospect)));
     } else {
-      
       setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]);
     }
     setShowAddForm(false);
-    setProspectToEdit(null);
+    setProspectToEdit(undefined); // Atualizado para undefined
   };
 
   const handleEdit = (prospect: Prospect) => {
@@ -84,7 +82,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
 
   const handleCancel = () => {
     setShowAddForm(false);
-    setProspectToEdit(null);
+    setProspectToEdit(undefined); // Atualizado para undefined
   };
 
   return (
