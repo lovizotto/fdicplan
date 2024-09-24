@@ -7,19 +7,33 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Variável de ambiente contendo a URL do banco de dados
+  url      = env("DATABASE_URL")
 }
 
 model Client {
-  id          Int      @id @default(autoincrement()) // Identificador único (auto-incrementado)
-  name        String // Nome do cliente
-  email       String   @unique // Email único para cada cliente
-  phone       String // Telefone
-  contact     String // Contato
-  lastHistory String // Última história
-  status      String // Status
-  createdAt   DateTime @default(now()) // Data de criação
-  updatedAt   DateTime @updatedAt // Atualiza automaticamente ao modificar
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  phone       String
+  contact     String
+  lastHistory String
+  status      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("clientes") // Nome da tabela no banco de dados
+  @@map("clientes")
+}
+
+model Lead {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  phone       String
+  contact     String
+  lastHistory String
+  status      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("Leads")
 }
