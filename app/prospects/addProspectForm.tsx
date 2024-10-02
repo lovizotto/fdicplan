@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 interface Prospect {
-  id?: number; // id opcional
+  id?: number; 
   name: string;
   email: string;
   phone: string;
@@ -29,17 +29,35 @@ const AddProspectForm: React.FC<{
 
   useEffect(() => {
     if (prospectToEdit) {
-      setFormData(prospectToEdit); // Preenche os dados do prospect para edição
+      setFormData(prospectToEdit); 
     }
   }, [prospectToEdit]);
 
+  
+  const formatPhone = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, ''); 
+    if (cleaned.length === 10) {
+      
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    } else if (cleaned.length === 11) {
+    
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    }
+    return phone; 
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === 'phone') {
+      const formattedPhone = formatPhone(value);
+      setFormData({ ...formData, [name]: formattedPhone });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-  const validatePhone = (phone: string) => /^\(\d{2}\)\d{4,5}-\d{4}$/.test(phone);
+  const validatePhone = (phone: string) => /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(phone);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +68,7 @@ const AddProspectForm: React.FC<{
     }
 
     if (!validatePhone(formData.phone)) {
-      setErrorMessage('Please enter a valid phone number (00)00000-0000).');
+      setErrorMessage('Please enter a valid phone number in the format (00)00000-0000.');
       return;
     }
 
@@ -64,7 +82,7 @@ const AddProspectForm: React.FC<{
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ...formData, id: prospectToEdit?.id }), // Adiciona o id se estiver editando
+      body: JSON.stringify({ ...formData, id: prospectToEdit?.id }),
     });
 
     if (response.ok) {
