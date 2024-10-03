@@ -173,13 +173,6 @@ const LeadForm: React.FC<{
               value={leadToEdit ? 'Update Lead' : 'Add Lead'}
               className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-blue-600"
             />
-            <button
-              type="button"
-              onClick={onCancel}
-              className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-red-600"
-            >
-              Cancel
-            </button>
             {leadToEdit && (
               <button
                 type="button"
@@ -189,6 +182,13 @@ const LeadForm: React.FC<{
                 Delete
               </button>
             )}
+            <button
+              type="button"
+              onClick={onCancel}
+              className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-red-600"
+            >
+              Cancel
+            </button>
           </div>
         </div>
       </form>
