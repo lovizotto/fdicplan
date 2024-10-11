@@ -1,10 +1,16 @@
 'use client';
-import React, { useState, useRef, FormEvent } from 'react';
+import React, { useState, useRef, FormEvent, useEffect } from 'react';
 import InputMask from 'react-input-mask';
 import emailjs from '@emailjs/browser';
 
 export default function Contact() {
   const form = useRef<HTMLFormElement>(null);
+  const [isClient, setIsClient] = useState(false);
+
+  // Verificar se estamos no lado do cliente
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const sendEmail = (e: FormEvent) => {
     e.preventDefault();
@@ -67,19 +73,19 @@ export default function Contact() {
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="phone" className="block text-black">
-              Phone:
-            </label>
-            <InputMask mask="(99) 99999-9999" name="phone" required>
-              <input
-                type="text"
-                id="phone"
-                placeholder="Enter your phone"
+          {isClient && (
+            <div className="form-group">
+              <label htmlFor="phone" className="block text-black">
+                Phone:
+              </label>
+              <InputMask
+                mask="(99) 99999-9999"
+                name="phone"
+                required
                 className="w-full border-gray-300 bg-white text-black rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
               />
-            </InputMask>
-          </div>
+            </div>
+          )}
 
           <div className="form-group">
             <label htmlFor="subject" className="block text-black">
