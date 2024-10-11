@@ -72,14 +72,12 @@ export default function Contact() {
               Phone:
             </label>
             <InputMask mask="(99) 99999-9999" name="phone" required>
-              {() => (
-                <input
-                  type="text"
-                  id="phone"
-                  placeholder="Enter your phone"
-                  className="w-full border-gray-300 bg-white text-black rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                />
-              )}
+              <input
+                type="text"
+                id="phone"
+                placeholder="Enter your phone"
+                className="w-full border-gray-300 bg-white text-black rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
             </InputMask>
           </div>
 
