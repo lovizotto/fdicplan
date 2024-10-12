@@ -34,9 +34,27 @@ const LeadForm: React.FC<{
     }
   }, [leadToEdit]);
 
+  const formatPhoneNumber = (phone: string) => {
+
+    let cleaned = phone.replace(/\D/g, '');
+    
+    if (cleaned.length <= 10) {
+      
+      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, '($1)$2-$3');
+    } else {
+      
+      return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, '($1)$2-$3');
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    if (name === 'phone') {
+      setFormData({ ...formData, [name]: formatPhoneNumber(value) });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);

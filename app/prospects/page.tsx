@@ -4,7 +4,7 @@ import { SearchInput } from '../components/form/SearchInput';
 import AddProspectForm from './addProspectForm';
 
 interface Prospect {
-  id?: number; // Torne o id opcional
+  id?: number; 
   name: string;
   email: string;
   phone: string;
@@ -65,7 +65,7 @@ export default function ProspectsPage({ params, searchParams }: ProspectsPagePro
     if (prospectToEdit) {
       setProspects(prospects.map(prospect => (prospect.id === prospectToEdit?.id ? { ...prospectToEdit, ...newProspect } : prospect)));
     } else {
-      setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]); // O id é opcional
+      setProspects([...prospects, { ...newProspect, id: prospects.length + 1 }]); 
     }
     setShowAddForm(false);
     setProspectToEdit(undefined); 
