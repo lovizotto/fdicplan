@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
 interface Prospect {
-  id?: number;
+  id?: number; 
   name: string;
   email: string;
   phone: string;
   contact: string;
   lastHistory: string;
   status: string;
-  type?: string; 
 }
 
-const ProspectForm: React.FC<{
+const AddProspectForm: React.FC<{
   onAdd: (prospect: Prospect) => void;
   onCancel: () => void;
   prospectToEdit?: Prospect;
@@ -24,23 +23,41 @@ const ProspectForm: React.FC<{
     contact: '',
     lastHistory: '',
     status: '',
-    type: 'prospect', 
   });
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (prospectToEdit) {
-      setFormData({ ...prospectToEdit, type: 'prospect' }); 
+      setFormData(prospectToEdit); 
     }
   }, [prospectToEdit]);
 
+  
+  const formatPhone = (phone: string) => {
+    const cleaned = phone.replace(/\D/g, ''); 
+    if (cleaned.length === 10) {
+      
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6)}`;
+    } else if (cleaned.length === 11) {
+    
+      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
+    }
+    return phone; 
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === 'phone') {
+      const formattedPhone = formatPhone(value);
+      setFormData({ ...formData, [name]: formattedPhone });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-  const validatePhone = (phone: string) => /^\(\d{2}\)\d{4,5}-\d{4}$/.test(phone);
+  const validatePhone = (phone: string) => /^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(phone);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,13 +68,13 @@ const ProspectForm: React.FC<{
     }
 
     if (!validatePhone(formData.phone)) {
-      setErrorMessage('Please enter a valid phone number (00)00000-0000).');
+      setErrorMessage('Please enter a valid phone number in the format (00)00000-0000.');
       return;
     }
 
-    setErrorMessage(null); 
+    setErrorMessage(null);
 
-    const url = 'http://localhost:3000/api/routes/prospects'; 
+    const url = 'http://localhost:3000/api/routes/prospects';
     const method = prospectToEdit ? 'PUT' : 'POST';
 
     const response = await fetch(url, {
@@ -65,14 +82,14 @@ const ProspectForm: React.FC<{
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ ...formData, id: prospectToEdit?.id }), 
+      body: JSON.stringify({ ...formData, id: prospectToEdit?.id }),
     });
 
     if (response.ok) {
-      const newProspect = await response.json(); 
+      const newProspect = await response.json();
       alert(`Prospect ${prospectToEdit ? 'updated' : 'added'} successfully!`);
-      onAdd(newProspect); 
-      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '', type: 'prospect' }); 
+      onAdd(newProspect);
+      setFormData({ name: '', email: '', phone: '', contact: '', lastHistory: '', status: '' });
       if (prospectToEdit) {
         onEditComplete();
       }
@@ -173,6 +190,13 @@ const ProspectForm: React.FC<{
               value={prospectToEdit ? 'Update Prospect' : 'Add Prospect'}
               className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-blue-600"
             />
+            <button
+              type="button"
+              onClick={onCancel}
+              className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-red-600"
+            >
+              Cancel
+            </button>
             {prospectToEdit && (
               <button
                 type="button"
@@ -182,13 +206,6 @@ const ProspectForm: React.FC<{
                 Delete
               </button>
             )}
-            <button
-              type="button"
-              onClick={onCancel}
-              className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-red-600"
-            >
-              Cancel
-            </button>
           </div>
         </div>
       </form>
@@ -196,4 +213,4 @@ const ProspectForm: React.FC<{
   );
 };
 
-export default ProspectForm;
+export default AddProspectForm;
