@@ -28,3 +28,4 @@ dist/
 
 #
 fxy-hesd-bsc
+.env
