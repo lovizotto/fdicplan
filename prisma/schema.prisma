@@ -21,19 +21,20 @@ model Client {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@map("clientes")
+  @@map("Prospects")
 }
 
 model Lead {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  phone       String
-  contact     String
-  lastHistory String
-  status      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+  cityName      String
+  companyName   String    @unique
+  phone         String    @unique
+  eventName     String?
+  contactPerson String?
+  email         String?
+  nextDate      DateTime?
+  observations  String?
 
   @@map("Leads")
 }
