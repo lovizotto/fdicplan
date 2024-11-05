@@ -13,6 +13,7 @@ interface Lead {
   email?: string;
   nextDate?: Date | string;  // Change to allow string format for date
   observations?: string;
+  createdAt?: Date | string; // Change to allow string format for date
 }
 
 interface LeadsPageProps {
@@ -43,7 +44,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
     const fetchLeads = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/routes/leads');
-        if (!response.ok) throw new Error('Failed to fetch leads');
+        if (!response.ok) throw new Error('Falha ao buscar leads');
         
         const data: Lead[] = await response.json();
         console.log('Leads:', data);
@@ -156,62 +157,61 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="table-auto w-full">
-          <thead>
-            <tr className="text-white bg-gray-700">
-            <th className="px-4 py-2">Data de Criação</th>
-              <th className="px-4 py-2">Cidade</th>
-              <th className="px-4 py-2">Empresa</th>
-              <th className="px-4 py-2">Telefone</th>
-              <th className="px-4 py-2">Pessoa de Contato</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Próxima data</th>
-              <th className="px-4 py-2">Observações</th>
-              <th className="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentLeads.map((lead) => (
-              <tr key={lead.id} className="bg-gray-100">
-                <td className="border px-4 py-2 text-black">
-                  {lead.nextDate
-                    ? new Date(lead.createdAt).toLocaleDateString()
-                    : ''}
-                </td>
-                <td className="border px-4 py-2 text-black whitespace-nowrap">{lead.cityName}</td>
-                <td className="border px-4 py-2 text-black">{lead.companyName}</td>
-                <td className="border px-4 py-2 text-black">{lead.phone}</td>
-                <td className="border px-4 py-2 text-black">{lead.contactPerson}</td>
-                <td className="border px-4 py-2 text-black">{lead.email}</td>
-                <td className="border px-4 py-2 text-black">{lead.observations}</td>
-                <td className="border px-4 py-2 text-black">
-                  {lead.nextDate
-                    ? new Date(lead.nextDate).toLocaleDateString()
-                    : ''}
-                </td>
-                <td className="border px-4 py-2 text-black">
-                  <button
-                    className="text-blue-500 hover:text-blue-700 mr-2"
-                    onClick={() => handleEdit(lead)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDelete(lead.id!)} 
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {currentLeads.length === 0 && (
-          <p className="text-center text-gray-500 mt-4">Nenhum lead encontrado.</p>
-        )}
-      </div>
+  <table className="table-auto w-full">
+    <thead className="sticky top-0 bg-gray-700 shadow">
+      <tr className="text-white">
+        <th className="px-4 py-2">Data de Criação</th>
+        <th className="px-4 py-2">Cidade</th>
+        <th className="px-4 py-2">Empresa</th>
+        <th className="px-4 py-2">Telefone</th>
+        <th className="px-4 py-2">Pessoa de Contato</th>
+        <th className="px-4 py-2">Email</th>
+        <th className="px-4 py-2">Observações</th>
+        <th className="px-4 py-2">Próxima data</th>
+        <th className="px-4 py-2">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {currentLeads.map((lead) => (
+        <tr key={lead.id} className="bg-gray-100">
+          <td className="border px-4 py-2 text-black">
+  {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : ''}
+</td>
+<td className="border px-4 py-2 text-black whitespace-nowrap">{lead.cityName}</td>
+<td className="border px-4 py-2 text-black">{lead.companyName}</td>
+<td className="border px-4 py-2 text-black">{lead.phone}</td>
+<td className="border px-4 py-2 text-black">{lead.contactPerson}</td>
+<td className="border px-4 py-2 text-black">{lead.email}</td>
+<td className="border px-4 py-2 text-black">{lead.observations}</td>
+<td className="border px-4 py-2 text-black">
+  {lead.nextDate 
+    ? new Date(new Date(lead.nextDate).getTime() + (new Date().getTimezoneOffset() * 60000)).toLocaleDateString() 
+    : ''}
+</td>
 
+
+          <td className="border px-4 py-2 text-black">
+            <button
+              className="text-blue-500 hover:text-blue-700 mr-2"
+              onClick={() => handleEdit(lead)}
+            >
+              Editar
+            </button>
+            <button
+              className="text-red-500 hover:text-red-700"
+              onClick={() => handleDelete(lead.id!)}
+            >
+              Excluir
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  {currentLeads.length === 0 && (
+    <p className="text-center text-gray-500 mt-4">Nenhum lead encontrado.</p>
+  )}
+</div>
       <div className="flex justify-center mt-4">
         {Array.from({ length: Math.ceil(filteredLeads.length / leadsPerPage) }, (_, index) => (
           <button

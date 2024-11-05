@@ -2,12 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 interface Lead {
   id?: number;
-  name: string;
-  email: string;
+  email?: string;
   phone: string;
   contactPerson?: string;
-  lastHistory: string;
-  status: string;
   type?: string;
   eventDate?: string;
   cityName?: string;
@@ -19,17 +16,14 @@ interface Lead {
 
 const LeadForm: React.FC<{
   onAdd: (lead: Lead) => void;
-  onCancel: () => void; // Função para fechar o formulário
+  onCancel: () => void; 
   leadToEdit?: Lead;
   onEditComplete: () => void;
 }> = ({ onAdd, onCancel, leadToEdit, onEditComplete }) => {
   const [formData, setFormData] = useState<Lead>({
-    name: '',
     email: '',
     phone: '',
     contactPerson: '',
-    lastHistory: '',
-    status: '',
     type: 'lead',
     eventDate: '',
     cityName: '',
@@ -69,18 +63,20 @@ const LeadForm: React.FC<{
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateEmail(formData.email)) {
+  
+    if (formData.email && !validateEmail(formData.email)) {
       setErrorMessage('Please enter a valid email address.');
       return;
     }
-
+  
     if (!validatePhone(formData.phone)) {
       setErrorMessage('Please enter a valid phone number (00)00000-0000).');
       return;
     }
-
+  
     setErrorMessage(null);
+  
+  
 
     const url = 'http://localhost:3000/api/routes/leads';
     const method = leadToEdit ? 'PUT' : 'POST';
@@ -103,12 +99,9 @@ const LeadForm: React.FC<{
       alert(`Lead ${leadToEdit ? 'updated' : 'added'} successfully!`);
       onAdd(newLead);
       setFormData({
-        name: '',
         email: '',
         phone: '',
         contactPerson: '',
-        lastHistory: '',
-        status: '',
         type: 'lead',
         eventDate: '',
         cityName: '',
@@ -191,7 +184,6 @@ const LeadForm: React.FC<{
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
-            required
             className="bg-white text-black px-4 py-2 rounded-md border border-gray-300"
           />
           <input

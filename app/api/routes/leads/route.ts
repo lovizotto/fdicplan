@@ -6,8 +6,8 @@ export async function GET(req: Request) {
   try {
     const leads = await prisma.lead.findMany();
     return new Response(JSON.stringify(leads), { status: 200 });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    console.error('Erro ao buscar leads:', error.message);
     return new Response('Failed to fetch leads', { status: 500 });
   }
 }
@@ -33,14 +33,17 @@ export async function POST(req: Request) {
         eventName,
         contactPerson,
         email,
-        nextDate: new Date(nextDate),
+        nextDate: nextDate ? new Date(new Date(nextDate).toISOString()) : null, // Ajuste aqui
         observations,
+        // O campo createdAt será preenchido automaticamente pelo Prisma
       },
     });
     return new Response(JSON.stringify(newLead), { status: 201 });
-  } catch (error) {
-    console.error(error);
-    return new Response('Failed to create lead', { status: 500 });
+  } catch (error: any) {
+    console.error('Erro ao criar lead:', error.message);
+    return new Response(`Failed to create lead: ${error.message}`, {
+      status: 500,
+    });
   }
 }
 
@@ -71,14 +74,17 @@ export async function PUT(req: Request) {
         eventName,
         contactPerson,
         email,
-        nextDate: new Date(nextDate),
+        nextDate: nextDate ? new Date(new Date(nextDate).toISOString()) : null, // Ajuste aqui
         observations,
+        // O campo createdAt não é alterado durante a atualização
       },
     });
     return new Response(JSON.stringify(updatedLead), { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return new Response('Failed to update lead', { status: 500 });
+  } catch (error: any) {
+    console.error('Erro ao atualizar lead:', error.message);
+    return new Response(`Failed to update lead: ${error.message}`, {
+      status: 500,
+    });
   }
 }
 
@@ -94,8 +100,10 @@ export async function DELETE(req: Request) {
       where: { id },
     });
     return new Response(null, { status: 204 });
-  } catch (error) {
-    console.error(error);
-    return new Response('Failed to delete lead', { status: 500 });
+  } catch (error: any) {
+    console.error('Erro ao deletar lead:', error.message);
+    return new Response(`Failed to delete lead: ${error.message}`, {
+      status: 500,
+    });
   }
 }
