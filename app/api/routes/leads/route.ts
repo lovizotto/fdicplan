@@ -13,16 +13,28 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const { name, email, phone, contact, lastHistory, status } = await req.json();
+  const {
+    cityName,
+    companyName,
+    phone,
+    eventName,
+    contactPerson,
+    email,
+    nextDate,
+    observations,
+  } = await req.json();
+
   try {
     const newLead = await prisma.lead.create({
       data: {
-        name,
-        email,
+        cityName,
+        companyName,
         phone,
-        contact,
-        lastHistory,
-        status,
+        eventName,
+        contactPerson,
+        email,
+        nextDate: new Date(nextDate),
+        observations,
       },
     });
     return new Response(JSON.stringify(newLead), { status: 201 });
@@ -33,8 +45,17 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-  const { id, name, email, phone, contact, lastHistory, status } =
-    await req.json();
+  const {
+    id,
+    cityName,
+    companyName,
+    phone,
+    eventName,
+    contactPerson,
+    email,
+    nextDate,
+    observations,
+  } = await req.json();
 
   if (!id) {
     return new Response('ID is required', { status: 400 });
@@ -43,7 +64,16 @@ export async function PUT(req: Request) {
   try {
     const updatedLead = await prisma.lead.update({
       where: { id },
-      data: { name, email, phone, contact, lastHistory, status },
+      data: {
+        cityName,
+        companyName,
+        phone,
+        eventName,
+        contactPerson,
+        email,
+        nextDate: new Date(nextDate),
+        observations,
+      },
     });
     return new Response(JSON.stringify(updatedLead), { status: 200 });
   } catch (error) {

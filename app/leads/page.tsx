@@ -5,32 +5,35 @@ import AddLeadForm from './addLeadForm';
 
 interface Lead {
   id?: number;  
-  name: string;
-  email: string;
+  cityName: string;
+  companyName: string;
   phone: string;
-  contact: string;
-  lastHistory: string;
-  status: string;
+  eventName?: string;
+  contactPerson?: string;
+  email?: string;
+  nextDate?: Date | string;  // Change to allow string format for date
+  observations?: string;
 }
 
 interface LeadsPageProps {
   params: Record<string, string>;
   searchParams: {
-    name?: string;
-    status?: string;
-    contact?: string;
+    cityName?: string;
+    companyName?: string;
+    nextDate?: string; // Formato de data em string
   };
 }
 
 export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
-  const name = searchParams.name || '';
-  const status = searchParams.status || '';
-  const contact = searchParams.contact || '';
+  const cityName = searchParams.cityName || '';
+  const companyName = searchParams.companyName || '';
+  const nextDate = searchParams.nextDate || '';
 
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>(name);
-  const [statusFilter, setStatusFilter] = useState<string>(status);
-  const [contactFilter, setContactFilter] = useState<string>(contact);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [cityFilter, setCityFilter] = useState<string>(cityName);
+  const [companyFilter, setCompanyFilter] = useState<string>(companyName);
+  const [nextDateFilter, setNextDateFilter] = useState<string>(nextDate);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const leadsPerPage = 10;
   const [showAddForm, setShowAddForm] = useState<boolean>(false);
@@ -38,22 +41,30 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
 
   useEffect(() => {
     const fetchLeads = async () => {
-      const response = await fetch('http://localhost:3000/api/routes/leads');
-      const data = await response.json();
-      setLeads(data);
+      try {
+        const response = await fetch('http://localhost:3000/api/routes/leads');
+        if (!response.ok) throw new Error('Failed to fetch leads');
+        
+        const data: Lead[] = await response.json();
+        console.log('Leads:', data);
+        setLeads(data);
+      } catch (error) {
+        console.error('Error fetching leads:', error);
+        setLeads([]);
+      }
     };
 
     fetchLeads();
   }, []);
 
   const filteredLeads = leads
-    .filter(
-      (lead) =>
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase())
+    .filter((lead) => 
+      lead.cityName.toLowerCase().includes(cityFilter.toLowerCase()) ||
+      lead.companyName.toLowerCase().includes(companyFilter.toLowerCase())
     )
-    .filter((lead) => (statusFilter ? lead.status === statusFilter : true))
-    .filter((lead) => (contactFilter ? lead.contact === contactFilter : true));
+    .filter((lead) => 
+      nextDateFilter ? new Date(lead.nextDate!).toLocaleDateString() === new Date(nextDateFilter).toLocaleDateString() : true
+    );
 
   const indexOfLastLead = currentPage * leadsPerPage;
   const indexOfFirstLead = indexOfLastLead - leadsPerPage;
@@ -61,17 +72,20 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
-  // Adicionar ou editar leads
   const handleAddLead = (newLead: Lead) => {
+    if (!newLead.companyName) {
+      alert('Company Name is required');
+      return;
+    }
+
     if (leadToEdit) {
-      setLeads(
-        leads.map((lead) =>
-          lead.id === leadToEdit?.id ? { ...leadToEdit, ...newLead } : lead 
-        )
-      );
+      setLeads(leads.map((lead) =>
+        lead.id === leadToEdit?.id ? { ...leadToEdit, ...newLead } : lead 
+      ));
     } else {
       setLeads([...leads, { ...newLead, id: leads.length + 1 }]);
     }
+    
     setShowAddForm(false);
     setLeadToEdit(undefined); 
   };
@@ -96,7 +110,6 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
 
       <div className="mb-4 flex items-center">
         <SearchInput
-          defaultValue={name}
           searchTerm={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -112,27 +125,28 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
       )}
 
       <div className="flex space-x-4 mb-4">
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          <option value="">All Status</option>
-          <option value="New">New</option>
-          <option value="In Progress">In Progress</option>
-        </select>
-
-        <select
-          value={contactFilter}
-          onChange={(e) => setContactFilter(e.target.value)}
-          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          <option value="">All Contact Methods</option>
-          <option value="Phone">Phone</option>
-          <option value="Email">Email</option>
-        </select>
+        <input
+          type="text"
+          placeholder="City Name"
+          value={cityFilter}
+          onChange={(e) => setCityFilter(e.target.value)}
+          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2"
+        />
+        <input
+          type="text"
+          placeholder="Company Name"
+          value={companyFilter}
+          onChange={(e) => setCompanyFilter(e.target.value)}
+          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2"
+        />
+        <input
+          type="date"
+          value={nextDateFilter}
+          onChange={(e) => setNextDateFilter(e.target.value)}
+          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2"
+        />
         <div className="flex-grow" />
-
+        
         <button
           onClick={() => setShowAddForm(true)}
           className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-600"
@@ -145,24 +159,36 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
         <table className="table-auto w-full">
           <thead>
             <tr className="text-white bg-gray-700">
-              <th className="px-4 py-2">Name</th>
+            <th className="px-4 py-2">Data de Criação</th>
+              <th className="px-4 py-2">Cidade</th>
+              <th className="px-4 py-2">Empresa</th>
+              <th className="px-4 py-2">Telefone</th>
+              <th className="px-4 py-2">Pessoa de Contato</th>
               <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Contact</th>
-              <th className="px-4 py-2">Last History</th>
-              <th className="px-4 py-2">Status</th>
+              <th className="px-4 py-2">Próxima data</th>
+              <th className="px-4 py-2">Observações</th>
               <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentLeads.map((lead) => (
               <tr key={lead.id} className="bg-gray-100">
-                <td className="border px-4 py-2 text-black whitespace-nowrap">{lead.name}</td>
-                <td className="border px-4 py-2 text-black">{lead.email}</td>
+                <td className="border px-4 py-2 text-black">
+                  {lead.nextDate
+                    ? new Date(lead.createdAt).toLocaleDateString()
+                    : ''}
+                </td>
+                <td className="border px-4 py-2 text-black whitespace-nowrap">{lead.cityName}</td>
+                <td className="border px-4 py-2 text-black">{lead.companyName}</td>
                 <td className="border px-4 py-2 text-black">{lead.phone}</td>
-                <td className="border px-4 py-2 text-black">{lead.contact}</td>
-                <td className="border px-4 py-2 text-black">{lead.lastHistory}</td>
-                <td className="border px-4 py-2 text-black">{lead.status}</td>
+                <td className="border px-4 py-2 text-black">{lead.contactPerson}</td>
+                <td className="border px-4 py-2 text-black">{lead.email}</td>
+                <td className="border px-4 py-2 text-black">{lead.observations}</td>
+                <td className="border px-4 py-2 text-black">
+                  {lead.nextDate
+                    ? new Date(lead.nextDate).toLocaleDateString()
+                    : ''}
+                </td>
                 <td className="border px-4 py-2 text-black">
                   <button
                     className="text-blue-500 hover:text-blue-700 mr-2"
@@ -182,7 +208,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
           </tbody>
         </table>
         {currentLeads.length === 0 && (
-          <p className="text-center text-gray-500 mt-4">No leads found.</p>
+          <p className="text-center text-gray-500 mt-4">Nenhum lead encontrado.</p>
         )}
       </div>
 
