@@ -113,7 +113,7 @@ const LeadForm: React.FC<{
       if (leadToEdit) {
         onEditComplete();
       }
-      onCancel(); // Fechar o formulário após adicionar/atualizar
+      onCancel(); 
     } catch (error) {
       console.error('Error while creating/updating lead:', error);
       setErrorMessage('Failed to add/update lead. Please try again later.');
@@ -128,7 +128,6 @@ const LeadForm: React.FC<{
         </h2>
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Campos do formulário */}
           <input
             type="date"
             name="eventDate"
@@ -211,7 +210,7 @@ const LeadForm: React.FC<{
           />
           <button
             type="button"
-            onClick={onCancel} // Chama onCancel para fechar o formulário
+            onClick={onCancel} 
             className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-red-600"
           >
             Cancel

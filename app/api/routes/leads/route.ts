@@ -33,9 +33,8 @@ export async function POST(req: Request) {
         eventName,
         contactPerson,
         email,
-        nextDate: nextDate ? new Date(new Date(nextDate).toISOString()) : null, // Ajuste aqui
+        nextDate: nextDate ? new Date(new Date(nextDate).toISOString()) : null,
         observations,
-        // O campo createdAt será preenchido automaticamente pelo Prisma
       },
     });
     return new Response(JSON.stringify(newLead), { status: 201 });
@@ -76,7 +75,6 @@ export async function PUT(req: Request) {
         email,
         nextDate: nextDate ? new Date(new Date(nextDate).toISOString()) : null, // Ajuste aqui
         observations,
-        // O campo createdAt não é alterado durante a atualização
       },
     });
     return new Response(JSON.stringify(updatedLead), { status: 200 });
@@ -89,7 +87,11 @@ export async function PUT(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const { id } = await req.json();
+  const url = new URL(req.url);
+  const id = url.pathname.split('/').pop(); // Extrai o ID da URL
+
+  console.log('URL:', req.url);
+  console.log('Extracted ID:', id);
 
   if (!id) {
     return new Response('ID is required', { status: 400 });
@@ -97,9 +99,9 @@ export async function DELETE(req: Request) {
 
   try {
     await prisma.lead.delete({
-      where: { id },
+      where: { id: parseInt(id) }, // Certifique-se de converter para número se necessário
     });
-    return new Response(null, { status: 204 });
+    return new Response(null, { status: 204 }); // No Content
   } catch (error: any) {
     console.error('Erro ao deletar lead:', error.message);
     return new Response(`Failed to delete lead: ${error.message}`, {
