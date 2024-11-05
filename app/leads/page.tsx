@@ -11,9 +11,9 @@ interface Lead {
   eventName?: string;
   contactPerson?: string;
   email?: string;
-  nextDate?: Date | string;  // Change to allow string format for date
+  nextDate?: Date | string;
   observations?: string;
-  createdAt?: Date | string; // Change to allow string format for date
+  createdAt?: Date | string;
 }
 
 interface LeadsPageProps {
@@ -21,7 +21,7 @@ interface LeadsPageProps {
   searchParams: {
     cityName?: string;
     companyName?: string;
-    nextDate?: string; // Formato de data em string
+    nextDate?: string;
   };
 }
 
@@ -96,10 +96,27 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
     setShowAddForm(true);
   };
 
-  const handleDelete = (id: number) => {
-    setLeads(leads.filter((lead) => lead.id !== id));
+  const handleDelete = async (id: number) => {
+    const confirmDelete = window.confirm('Tem certeza que deseja excluir este lead?');
+    if (!confirmDelete) return;
+  
+    try {
+      const response = await fetch(`http://localhost:3000/api/routes/leads/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (!response.ok) {
+        throw new Error('Falha ao excluir o lead');
+      }
+  
+      setLeads(leads.filter((lead) => lead.id !== id));
+      alert('Lead excluído com sucesso!'); // Mensagem de sucesso
+    } catch (error) {
+      console.error('Error deleting lead:', error);
+      alert('Ocorreu um erro ao excluir o lead.');
+    }
   };
-
+  
   const handleCancel = () => {
     setShowAddForm(false);
     setLeadToEdit(undefined); 
@@ -157,75 +174,65 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
       </div>
 
       <div className="overflow-x-auto">
-  <table className="table-auto w-full">
-    <thead className="sticky top-0 bg-gray-700 shadow">
-      <tr className="text-white">
-        <th className="px-4 py-2">Data de Criação</th>
-        <th className="px-4 py-2">Cidade</th>
-        <th className="px-4 py-2">Empresa</th>
-        <th className="px-4 py-2">Telefone</th>
-        <th className="px-4 py-2">Pessoa de Contato</th>
-        <th className="px-4 py-2">Email</th>
-        <th className="px-4 py-2">Observações</th>
-        <th className="px-4 py-2">Próxima data</th>
-        <th className="px-4 py-2">Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      {currentLeads.map((lead) => (
-        <tr key={lead.id} className="bg-gray-100">
-          <td className="border px-4 py-2 text-black">
-  {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : ''}
-</td>
-<td className="border px-4 py-2 text-black whitespace-nowrap">{lead.cityName}</td>
-<td className="border px-4 py-2 text-black">{lead.companyName}</td>
-<td className="border px-4 py-2 text-black">{lead.phone}</td>
-<td className="border px-4 py-2 text-black">{lead.contactPerson}</td>
-<td className="border px-4 py-2 text-black">{lead.email}</td>
-<td className="border px-4 py-2 text-black">{lead.observations}</td>
-<td className="border px-4 py-2 text-black">
-  {lead.nextDate 
-    ? new Date(new Date(lead.nextDate).getTime() + (new Date().getTimezoneOffset() * 60000)).toLocaleDateString() 
-    : ''}
-</td>
+        <table className="table-auto w-full">
+          <thead className="sticky top-0 bg-gray-700 shadow">
+            <tr className="text-white">
+              <th className="px-4 py-2">Data de Criação</th>
+              <th className="px-4 py-2">Cidade</th>
+              <th className="px-4 py-2">Empresa</th>
+              <th className="px-4 py-2">Telefone</th>
+              <th className="px-4 py-2">Pessoa de Contato</th>
+              <th className="px-4 py-2">Email</th>
+              <th className="px-4 py-2">Observações</th>
+              <th className="px-4 py-2">Próxima data</th>
+              <th className="px-4 py-2">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentLeads.map((lead) => (
+              <tr key={lead.id} className="bg-gray-100">
+                <td className="border px-4 py-2 text-black">
+                  {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : ''}
+                </td>
+                <td className="border px-4 py-2 text-black whitespace-nowrap">{lead.cityName}</td>
+                <td className="border px-4 py-2 text-black">{lead.companyName}</td>
+                <td className="border px-4 py-2 text-black">{lead.phone}</td>
+                <td className="border px-4 py-2 text-black">{lead.contactPerson}</td>
+                <td className="border px-4 py-2 text-black">{lead.email}</td>
+                <td className="border px-4 py-2 text-black">{lead.observations}</td>
+                <td className="border px-4 py-2 text-black">
+                  {lead.nextDate ? new Date(lead.nextDate).toLocaleDateString() : ''}
+                </td>
+                <td className="border px-4 py-2 text-black">
+                  <button onClick={() => handleEdit(lead)} className="text-blue-500 hover:text-blue-700">
+                    Editar
+                  </button>
+                  <button onClick={() => handleDelete(lead.id!)} className="text-red-500 hover:text-red-700 ml-2">
+                    Excluir
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-
-          <td className="border px-4 py-2 text-black">
-            <button
-              className="text-blue-500 hover:text-blue-700 mr-2"
-              onClick={() => handleEdit(lead)}
-            >
-              Editar
-            </button>
-            <button
-              className="text-red-500 hover:text-red-700"
-              onClick={() => handleDelete(lead.id!)}
-            >
-              Excluir
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-  {currentLeads.length === 0 && (
-    <p className="text-center text-gray-500 mt-4">Nenhum lead encontrado.</p>
-  )}
-</div>
-      <div className="flex justify-center mt-4">
-        {Array.from({ length: Math.ceil(filteredLeads.length / leadsPerPage) }, (_, index) => (
-          <button
-            key={index + 1}
-            onClick={() => paginate(index + 1)}
-            className={`mx-1 px-3 py-1 border rounded ${
-              currentPage === index + 1
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-black'
-            }`}
-          >
-            {index + 1}
-          </button>
-        ))}   
+      <div className="flex justify-between mt-4">
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="bg-gray-300 text-black py-2 px-4 rounded-md"
+        >
+          Anterior
+        </button>
+        <span className="text-black">Página {currentPage} de {Math.ceil(filteredLeads.length / leadsPerPage)}</span>
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === Math.ceil(filteredLeads.length / leadsPerPage)}
+          className="bg-gray-300 text-black py-2 px-4 rounded-md"
+        >
+          Próximo
+        </button>
       </div>
     </div>
   );
