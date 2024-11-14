@@ -1,7 +1,8 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SearchInput } from '../components/form/SearchInput';
 import AddLeadForm from './addLeadForm';
+import './custom.css'; // Importa o arquivo custom.css
 
 interface Lead {
   id?: number;  
@@ -31,14 +32,17 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
   const nextDate = searchParams.nextDate || '';
 
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [cityFilter, setCityFilter] = useState<string>(cityName);
-  const [companyFilter, setCompanyFilter] = useState<string>(companyName);
-  const [nextDateFilter, setNextDateFilter] = useState<string>(nextDate);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [filter, setFilter] = useState({
+    cityName: '',
+    companyName: '',
+    contactOrEmail: '',
+    createdAt: '',
+  });
+  const [currentPage, setCurrentPage] = useState(1);
   const leadsPerPage = 10;
-  const [showAddForm, setShowAddForm] = useState<boolean>(false);
-  const [leadToEdit, setLeadToEdit] = useState<Lead | undefined>(undefined); 
+  const tableRef = useRef<HTMLTableElement>(null);
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -47,7 +51,6 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
         if (!response.ok) throw new Error('Falha ao buscar leads');
         
         const data: Lead[] = await response.json();
-        console.log('Leads:', data);
         setLeads(data);
       } catch (error) {
         console.error('Error fetching leads:', error);
@@ -58,27 +61,15 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
     fetchLeads();
   }, []);
 
-  const filteredLeads = leads
-    .filter((lead) => 
-      lead.cityName.toLowerCase().includes(cityFilter.toLowerCase()) ||
-      lead.companyName.toLowerCase().includes(companyFilter.toLowerCase())
-    )
-    .filter((lead) => 
-      nextDateFilter ? new Date(lead.nextDate!).toLocaleDateString() === new Date(nextDateFilter).toLocaleDateString() : true
-    );
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      [name]: value,
+    }));
+  };
 
-  const indexOfLastLead = currentPage * leadsPerPage;
-  const indexOfFirstLead = indexOfLastLead - leadsPerPage;
-  const currentLeads = filteredLeads.slice(indexOfFirstLead, indexOfLastLead);
-
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
-  const handleAddLead = (newLead: Lead) => {
-    if (!newLead.companyName) {
-      alert('Company Name is required');
-      return;
-    }
-
+  const handleSubmit = (newLead: Lead) => {
     if (leadToEdit) {
       setLeads(leads.map((lead) =>
         lead.id === leadToEdit?.id ? { ...leadToEdit, ...newLead } : lead 
@@ -101,8 +92,12 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
     if (!confirmDelete) return;
   
     try {
-      const response = await fetch(`http://localhost:3000/api/routes/leads/${id}`, {
+      const response = await fetch('http://localhost:3000/api/routes/leads', {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
       });
   
       if (!response.ok) {
@@ -110,7 +105,7 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
       }
   
       setLeads(leads.filter((lead) => lead.id !== id));
-      alert('Lead excluído com sucesso!'); // Mensagem de sucesso
+      alert('Lead excluído com sucesso!'); 
     } catch (error) {
       console.error('Error deleting lead:', error);
       alert('Ocorreu um erro ao excluir o lead.');
@@ -122,59 +117,106 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
     setLeadToEdit(undefined); 
   };
 
+  const filteredLeads = leads.filter((lead) => {
+    return (
+      (filter.cityName === '' || lead.cityName.toLowerCase().includes(filter.cityName.toLowerCase())) &&
+      (filter.companyName === '' || lead.companyName.toLowerCase().includes(filter.companyName.toLowerCase())) &&
+      (filter.contactOrEmail === '' || 
+        (lead.contactPerson?.toLowerCase().includes(filter.contactOrEmail.toLowerCase()) || 
+         lead.email?.toLowerCase().includes(filter.contactOrEmail.toLowerCase()))) &&
+      (filter.createdAt === '' || (lead.createdAt && new Date(lead.createdAt).toISOString().split('T')[0] === filter.createdAt))
+    );
+  });
+
+  const indexOfLastLead = currentPage * leadsPerPage;
+  const indexOfFirstLead = indexOfLastLead - leadsPerPage;
+  const currentLeads = filteredLeads.slice(indexOfFirstLead, indexOfLastLead);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  const initResizableColumns = () => {
+    const table = tableRef.current;
+    if (!table) return;
+
+    const cols = table.querySelectorAll('th');
+    cols.forEach((col) => {
+      const resizer = document.createElement('div');
+      resizer.className = 'resizer';
+      col.appendChild(resizer);
+      resizer.addEventListener('mousedown', initResize);
+    });
+
+    function initResize(e: MouseEvent) {
+      const col = (e.target as HTMLElement).parentElement;
+      if (!col) return;
+
+      const startX = e.pageX;
+      const startWidth = col.offsetWidth;
+
+      function doResize(e: MouseEvent) {
+        if (col) {
+          col.style.width = `${startWidth + e.pageX - startX}px`;
+        }
+      }
+
+      function stopResize() {
+        document.removeEventListener('mousemove', doResize);
+        document.removeEventListener('mouseup', stopResize);
+      }
+
+      document.addEventListener('mousemove', doResize);
+      document.addEventListener('mouseup', stopResize);
+    }
+  };
+
+  useEffect(() => {
+    initResizableColumns();
+  }, []);
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center mb-6 text-white">Lead List</h1>
+      <h1 className="text-3xl font-bold text-center mb-6 text-white">Lista de Leads</h1>
 
-      <div className="mb-4 flex items-center">
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <SearchInput
-          searchTerm={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          name="cityName"
+          placeholder="Filtrar por Cidade"
+          value={filter.cityName}
+          onChange={handleFilterChange}
         />
-      </div>
-
-      {showAddForm && (
-        <AddLeadForm
-          onAdd={handleAddLead}
-          onCancel={handleCancel}
-          leadToEdit={leadToEdit} 
-          onEditComplete={handleCancel}
+        <SearchInput
+          name="companyName"
+          placeholder="Filtrar por Empresa"
+          value={filter.companyName}
+          onChange={handleFilterChange}
         />
-      )}
-
-      <div className="flex space-x-4 mb-4">
-        <input
-          type="text"
-          placeholder="City Name"
-          value={cityFilter}
-          onChange={(e) => setCityFilter(e.target.value)}
-          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2"
-        />
-        <input
-          type="text"
-          placeholder="Company Name"
-          value={companyFilter}
-          onChange={(e) => setCompanyFilter(e.target.value)}
-          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2"
+        <SearchInput
+          name="contactOrEmail"
+          placeholder="Filtrar por Contato ou Email"
+          value={filter.contactOrEmail}
+          onChange={handleFilterChange}
         />
         <input
           type="date"
-          value={nextDateFilter}
-          onChange={(e) => setNextDateFilter(e.target.value)}
-          className="border-gray-300 bg-white text-black rounded-md shadow-sm px-4 py-2"
+          name="createdAt"
+          placeholder="Filtrar por Data de Criação"
+          value={filter.createdAt}
+          onChange={handleFilterChange}
+          className="bg-white text-black px-4 py-2 rounded-md border border-gray-300"
         />
-        <div className="flex-grow" />
-        
+      </div>
+
+      <div className="mb-4 flex justify-end">
         <button
           onClick={() => setShowAddForm(true)}
           className="bg-blue-500 text-white py-2 px-4 rounded-md shadow-sm hover:bg-blue-600"
         >
-          Add Lead
+          Adicionar Lead
         </button>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="table-auto w-full">
+        <table ref={tableRef} className="table-resizable w-full">
           <thead className="sticky top-0 bg-gray-700 shadow">
             <tr className="text-white">
               <th className="px-4 py-2">Data de Criação</th>
@@ -201,13 +243,19 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
                 <td className="border px-4 py-2 text-black">{lead.email}</td>
                 <td className="border px-4 py-2 text-black">{lead.observations}</td>
                 <td className="border px-4 py-2 text-black">
-                  {lead.nextDate ? new Date(lead.nextDate).toLocaleDateString() : ''}
+                  {lead.nextDate ? new Date(new Date(lead.nextDate).getTime() + 24*60*60*1000).toLocaleDateString() : ''}
                 </td>
-                <td className="border px-4 py-2 text-black">
-                  <button onClick={() => handleEdit(lead)} className="text-blue-500 hover:text-blue-700">
+                <td className="border px-4 py-2 text-black space-x-2">
+                  <button
+                    onClick={() => handleEdit(lead)}
+                    className="bg-blue-500 text-white px-2 py-1 rounded-md shadow-sm hover:bg-blue-600"
+                  >
                     Editar
                   </button>
-                  <button onClick={() => handleDelete(lead.id!)} className="text-red-500 hover:text-red-700 ml-2">
+                  <button
+                    onClick={() => handleDelete(lead.id!)}
+                    className="bg-red-500 text-white px-2 py-1 rounded-md shadow-sm hover:bg-red-600"
+                  >
                     Excluir
                   </button>
                 </td>
@@ -217,23 +265,26 @@ export default function LeadsPage({ params, searchParams }: LeadsPageProps) {
         </table>
       </div>
 
-      <div className="flex justify-between mt-4">
-        <button
-          onClick={() => paginate(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="bg-gray-300 text-black py-2 px-4 rounded-md"
-        >
-          Anterior
-        </button>
-        <span className="text-black">Página {currentPage} de {Math.ceil(filteredLeads.length / leadsPerPage)}</span>
-        <button
-          onClick={() => paginate(currentPage + 1)}
-          disabled={currentPage === Math.ceil(filteredLeads.length / leadsPerPage)}
-          className="bg-gray-300 text-black py-2 px-4 rounded-md"
-        >
-          Próximo
-        </button>
+      <div className="mt-4 flex justify-center">
+        {Array.from({ length: Math.ceil(filteredLeads.length / leadsPerPage) }, (_, index) => (
+          <button
+            key={index}
+            onClick={() => paginate(index + 1)}
+            className={`mx-1 px-3 py-1 rounded-md ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
+          >
+            {index + 1}
+          </button>
+        ))}
       </div>
+
+      {showAddForm && (
+        <AddLeadForm
+          onAdd={handleSubmit}  
+          onCancel={handleCancel}
+          leadToEdit={leadToEdit}
+          onEditComplete={handleCancel}
+        />
+      )}
     </div>
   );
 }

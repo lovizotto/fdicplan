@@ -1,0 +1,29 @@
+.table-resizable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table-resizable th,
+  .table-resizable td { 
+    border: 1px solid #ddd;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  
+  .table-resizable th {
+    background-color: #4A5568;
+    cursor: col-resize;
+  }
+  
+  .table-resizable th .resizer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    cursor: col-resize;
+    user-select: none;
+  }

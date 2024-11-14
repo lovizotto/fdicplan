@@ -36,7 +36,11 @@ const LeadForm: React.FC<{
 
   useEffect(() => {
     if (leadToEdit) {
-      setFormData({ ...leadToEdit, type: 'lead' });
+      setFormData({
+        ...leadToEdit,
+        type: 'lead',
+        nextDate: leadToEdit.nextDate ? new Date(leadToEdit.nextDate).toISOString().split('T')[0] : '',
+      });
     }
   }, [leadToEdit]);
 
@@ -76,8 +80,6 @@ const LeadForm: React.FC<{
   
     setErrorMessage(null);
   
-  
-
     const url = 'http://localhost:3000/api/routes/leads';
     const method = leadToEdit ? 'PUT' : 'POST';
 
@@ -120,6 +122,28 @@ const LeadForm: React.FC<{
     }
   };
 
+  const handleDelete = async () => {
+    if (!leadToEdit?.id) return;
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/routes/leads/${leadToEdit.id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text(); // Obtém texto de erro
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      alert('Lead deleted successfully!');
+      onEditComplete();
+      onCancel();
+    } catch (error) {
+      console.error('Error while deleting lead:', error);
+      setErrorMessage('Failed to delete lead. Please try again later.');
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-opacity-75 bg-zinc-600 flex justify-center items-center z-50">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-md shadow-lg w-3/4 max-w-4xl">
@@ -129,20 +153,12 @@ const LeadForm: React.FC<{
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
-            type="date"
-            name="eventDate"
-            placeholder="Data Evento"
-            value={formData.eventDate}
-            onChange={handleChange}
-            className="bg-white text-black px-4 py-2 rounded-md border border-gray-300"
-          />
-          <input
             type="text"
             name="cityName"
             placeholder="Nome da Cidade"
             value={formData.cityName}
             onChange={handleChange}
-            className="bg-white text-black px-4 py-2 rounded-md border border-gray-300"
+            className="bg-white text-black px-4 py-2 rounded-md border border-gray-300 md:col-span-2"
           />
           <input
             type="text"
@@ -171,7 +187,7 @@ const LeadForm: React.FC<{
           <input
             type="text"
             name="phone"
-            placeholder="Phone (00)00000-0000"
+            placeholder="Telefone"
             value={formData.phone}
             onChange={handleChange}
             required
@@ -211,7 +227,7 @@ const LeadForm: React.FC<{
           <button
             type="button"
             onClick={onCancel} 
-            className="bg-red-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-red-600"
+            className="bg-gray-500 text-white py-2 px-4 rounded-md shadow-sm cursor-pointer hover:bg-gray-600"
           >
             Cancel
           </button>
